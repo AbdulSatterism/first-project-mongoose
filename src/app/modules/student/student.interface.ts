@@ -1,4 +1,6 @@
-export type Guardian = {
+import { Model } from 'mongoose';
+
+export type TGuardian = {
   fathersName: string;
   fathersContactNo: string;
   fathersOccupation: string;
@@ -7,30 +9,49 @@ export type Guardian = {
   mothersOccupation: string;
 };
 
-export type LocalGuardian = {
+export type TLocalGuardian = {
   name: string;
   occupation: string;
   contactNo: string;
   address: string;
 };
 
-export type StudentName = {
+export type TStudentName = {
   firstName: string;
-  middleName: string;
+  middleName?: string;
   lastName: string;
 };
 
-export type Student = {
+export type TStudent = {
   id: string;
-  name: StudentName;
-  gender: 'male' | 'female';
+  password: string;
+  name: TStudentName;
+  gender: 'male' | 'female' | 'others';
   contactNo: string;
   emergencyContactNo: string;
-  bloodGroup: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
+  bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
   email: string;
   presentAddress: string;
   permanentAddress: string;
-  guardian: Guardian;
-  localGuardian: LocalGuardian;
+  guardian: TGuardian;
+  localGuardian: TLocalGuardian;
   studentImage?: string;
+  isDelete: boolean;
 };
+
+// for static // it's easy
+
+export interface StudentModel extends Model<TStudent> {
+  isStudentExists(id: string): Promise<TStudent | null>;
+}
+
+//for creating instance
+// export type TStudentMethods = {
+//   isStudentExists(id: string): Promise<TStudent | null>;
+// };
+
+// export type TStudentModel = Model<
+//   TStudent,
+//   Record<string, never>,
+//   TStudentMethods
+// >;
