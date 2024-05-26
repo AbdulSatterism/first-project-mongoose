@@ -51,29 +51,35 @@ const localGuardianValidationSchema = z.object({
 });
 
 // Student schema
-const studentValidationSchema = z.object({
-  id: z.string().min(1, { message: 'ID is required' }),
-  password: z.string().max(20, {
-    message: 'password should not upper than 20 chr & is required',
+const createStudentValidationSchema = z.object({
+  body: z.object({
+    password: z.string().max(20),
+    student: z.object({
+      name: studentNameValidationSchema,
+      gender: z.enum(['male', 'female', 'others']),
+      contactNo: z.string().min(1, { message: 'Contact number is required' }),
+      emergencyContactNo: z
+        .string()
+        .min(1, { message: 'Emergency contact number is required' }),
+      dateOfBirth: z.string().optional(),
+      bloodGroup: z
+        .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
+        .optional(),
+      email: z.string().email({ message: 'Invalid email address' }),
+      presentAddress: z
+        .string()
+        .min(1, { message: 'Present address is required' }),
+      permanentAddress: z
+        .string()
+        .min(1, { message: 'Permanent address is required' }),
+      guardian: guardianValidationSchema,
+      localGuardian: localGuardianValidationSchema,
+      admissionSemester: z.string(),
+      profileImage: z.string().url().optional(),
+    }),
   }),
-  name: studentNameValidationSchema,
-  gender: z.enum(['male', 'female', 'others']),
-  contactNo: z.string().min(1, { message: 'Contact number is required' }),
-  emergencyContactNo: z
-    .string()
-    .min(1, { message: 'Emergency contact number is required' }),
-  bloodGroup: z
-    .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
-    .optional(),
-  email: z.string().email({ message: 'Invalid email address' }),
-  presentAddress: z.string().min(1, { message: 'Present address is required' }),
-  permanentAddress: z
-    .string()
-    .min(1, { message: 'Permanent address is required' }),
-  guardian: guardianValidationSchema,
-  localGuardian: localGuardianValidationSchema,
-  studentImage: z.string().url().optional(),
-  isDelete: z.boolean(),
 });
 
-export default studentValidationSchema;
+export const studentValidations = {
+  createStudentValidationSchema,
+};

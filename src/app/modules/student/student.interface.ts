@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 export type TGuardian = {
   fathersName: string;
@@ -24,19 +24,21 @@ export type TStudentName = {
 
 export type TStudent = {
   id: string;
-  password: string;
+  user: Types.ObjectId;
   name: TStudentName;
   gender: 'male' | 'female' | 'others';
   contactNo: string;
   emergencyContactNo: string;
+  dateOfBirth?: string;
   bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
   email: string;
   presentAddress: string;
   permanentAddress: string;
   guardian: TGuardian;
   localGuardian: TLocalGuardian;
-  studentImage?: string;
-  isDelete: boolean;
+  profileImage?: string;
+  admissionSemester: Types.ObjectId;
+  isDeleted: boolean;
 };
 
 // for static // it's easy

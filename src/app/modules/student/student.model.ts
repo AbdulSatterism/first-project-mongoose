@@ -5,9 +5,7 @@ import {
   TLocalGuardian,
   TStudent,
   TStudentName,
-} from './student/student.interface';
-import bcrypt from 'bcrypt';
-import config from '../config';
+} from './student.interface';
 
 const studentNameSchema = new Schema<TStudentName>({
   firstName: {
@@ -62,9 +60,11 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       required: true,
       unique: true,
     },
-    password: {
-      type: String,
-      required: true,
+    user: {
+      type: Schema.Types.ObjectId,
+      required: [true, 'id is required'],
+      unique: true,
+      ref: 'User',
     },
     name: {
       type: studentNameSchema,
@@ -81,6 +81,9 @@ const studentSchema = new Schema<TStudent, StudentModel>(
     },
     contactNo: { type: String, required: true },
     emergencyContactNo: { type: String, required: true },
+    dateOfBirth: {
+      type: String,
+    },
     bloodGroup: {
       type: String,
       enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
@@ -100,8 +103,12 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       type: localGuardianSchema,
       required: true,
     },
-    studentImage: { type: String },
-    isDelete: {
+    profileImage: { type: String },
+    admissionSemester: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicSemester',
+    },
+    isDeleted: {
       type: Boolean,
       default: false,
     },
@@ -114,24 +121,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
 // mongoose virtual
 studentSchema.virtual('fullName').get(function () {
   return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
-});
-
-//pre save middleware or hook in mongoose document middleware
-studentSchema.pre('save', async function (next) {
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
-  const user = this;
-  user.password = await bcrypt.hash(
-    user.password,
-    Number(config.bcrypt_salt_round),
-  );
-
-  next();
-});
-
-//post save middleware or hook in mongoose
-studentSchema.post('save', function (doc, next) {
-  doc.password = '';
-  next();
 });
 
 // query middleware
