@@ -55,4 +55,14 @@ userSchema.post('save', function (doc, next) {
   next();
 });
 
+//check document exist or not then update
+// userSchema.pre('findOneAndUpdate', async function (next) {
+//   const query = this.getQuery();
+//   const isUserExist = await User.findOne(query);
+//   if (!isUserExist) {
+//     throw new AppError(httpStatus.NOT_FOUND, 'This user not available in db');
+//   }
+//   next();
+// });
+
 export const User = model<TUser>('User', userSchema);

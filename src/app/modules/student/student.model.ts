@@ -13,15 +13,6 @@ const studentNameSchema = new Schema<TStudentName>({
     trim: true,
     maxLength: [20, 'first name will not more than 20 char'],
     required: [true, 'First name is required'],
-    // custom  validate function
-    // validate: {
-    //   validator: function (value: string) {
-    //     const firstNameStr = value.charAt(0).toUpperCase() + value.slice(1);
-    //     return firstNameStr === value;
-    //   },
-    //   message:
-    //     '{VALUE} is not capitalize string you should start Capital letter',
-    // },
   },
   middleName: {
     type: String,
@@ -29,11 +20,6 @@ const studentNameSchema = new Schema<TStudentName>({
   lastName: {
     type: String,
     required: [true, 'First name is required'],
-    //last name validate with validator package
-    // validate: {
-    //   validator: (value: string) => validator.isAlpha(value),
-    //   message: '{VALUE} is not valid name',
-    // },
   },
 });
 
@@ -108,6 +94,10 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       type: Schema.Types.ObjectId,
       ref: 'AcademicSemester',
     },
+    academicDepartment: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicDepartment',
+    },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -133,6 +123,19 @@ studentSchema.pre('findOne', function (next) {
   this.find({ isDelete: { $ne: true } });
   next();
 });
+
+//check document exist or not then update
+// studentSchema.pre('findOneAndUpdate', async function (next) {
+//   const query = this.getQuery();
+//   const isStudentExist = await Student.findOne(query);
+//   if (!isStudentExist) {
+//     throw new AppError(
+//       httpStatus.NOT_FOUND,
+//       'This student not available in db',
+//     );
+//   }
+//   next();
+// });
 
 studentSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { isDelete: { $ne: true } } });
