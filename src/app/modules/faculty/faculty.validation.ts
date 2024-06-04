@@ -1,40 +1,64 @@
 import { z } from 'zod';
+import { BloodGroup, Gender } from './faculty.const';
 
-const facultyNameValidationSchema = z.object({
+const createUserNameValidationSchema = z.object({
   firstName: z
     .string()
-    .trim()
-    .max(20, { message: 'First name cannot be more than 20 characters' }),
-  middleName: z.string().trim().optional(),
-  lastName: z.string().trim().min(1, { message: 'Last name is required' }),
+    .min(1)
+    .max(20)
+    .refine((value) => /^[A-Z]/.test(value), {
+      message: 'First Name must start with a capital letter',
+    }),
+  middleName: z.string(),
+  lastName: z.string(),
 });
 
-const createFacultyValidationSchema = z.object({
+export const createFacultyValidationSchema = z.object({
   body: z.object({
     password: z.string().max(20),
     faculty: z.object({
       designation: z.string(),
-      name: facultyNameValidationSchema,
-      gender: z.enum(['male', 'female', 'others']),
+      name: createUserNameValidationSchema,
+      gender: z.enum([...Gender] as [string, ...string[]]),
       dateOfBirth: z.string().optional(),
-      contactNo: z.string().min(1, { message: 'Contact number is required' }),
-      emergencyContactNo: z
-        .string()
-        .min(1, { message: 'Emergency contact number is required' }),
-      email: z.string().email({ message: 'Invalid email address' }),
-      presentAddress: z
-        .string()
-        .min(1, { message: 'Present address is required' }),
-      permanentAddress: z
-        .string()
-        .min(1, { message: 'Permanent address is required' }),
-      profileImage: z.string().url().optional(),
+      email: z.string().email(),
+      contactNo: z.string(),
+      emergencyContactNo: z.string(),
+      bloodGroup: z.enum([...BloodGroup] as [string, ...string[]]),
+      presentAddress: z.string(),
+      permanentAddress: z.string(),
       academicDepartment: z.string(),
-      academicFaculty: z.string(),
+      profileImg: z.string(),
     }),
   }),
 });
 
-export const facultyValidations = {
+const updateUserNameValidationSchema = z.object({
+  firstName: z.string().min(1).max(20).optional(),
+  middleName: z.string().optional(),
+  lastName: z.string().optional(),
+});
+
+export const updateFacultyValidationSchema = z.object({
+  body: z.object({
+    faculty: z.object({
+      designation: z.string().optional(),
+      name: updateUserNameValidationSchema,
+      gender: z.enum([...Gender] as [string, ...string[]]).optional(),
+      dateOfBirth: z.string().optional(),
+      email: z.string().email().optional(),
+      contactNo: z.string().optional(),
+      emergencyContactNo: z.string().optional(),
+      bloodGroup: z.enum([...BloodGroup] as [string, ...string[]]).optional(),
+      presentAddress: z.string().optional(),
+      permanentAddress: z.string().optional(),
+      profileImg: z.string().optional(),
+      academicDepartment: z.string().optional(),
+    }),
+  }),
+});
+
+export const FacultyValidations = {
   createFacultyValidationSchema,
+  updateFacultyValidationSchema,
 };

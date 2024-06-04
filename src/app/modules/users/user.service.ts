@@ -16,6 +16,7 @@ import { Faculty } from '../faculty/faculty.model';
 import { TFaculty } from '../faculty/faculty.interface';
 import { TAdmin } from '../admin/admin.interface';
 import { Admin } from '../admin/admin.model';
+import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
 
 const createStudentIntoDB = async (password: string, payload: TStudent) => {
   //create a user object
@@ -76,6 +77,15 @@ const createFacultyIntoDB = async (password: string, payload: TFaculty) => {
   userData.password = password || (config.default_password as string);
   userData.role = 'faculty';
 
+  // find academic department info
+  const academicDepartment = await AcademicDepartment.findById(
+    payload.academicDepartment,
+  );
+
+  if (!academicDepartment) {
+    throw new AppError(400, 'Academic department not found');
+  }
+
   // create session
   const session = await mongoose.startSession();
   try {
@@ -93,7 +103,6 @@ const createFacultyIntoDB = async (password: string, payload: TFaculty) => {
 
     payload.id = facultyUser[0].id;
     payload.user = facultyUser[0]._id;
-    payload.role = facultyUser[0].role;
 
     const newFaculty = await Faculty.create([payload], { session });
     if (!newFaculty) {
@@ -128,7 +137,6 @@ const createAdminIntoDB = async (password: string, payload: TAdmin) => {
     }
     payload.id = adminUser[0].id;
     payload.user = adminUser[0]._id;
-    payload.role = adminUser[0].role;
 
     const newAdmin = await Admin.create([payload], { session });
     if (!newAdmin?.length) {

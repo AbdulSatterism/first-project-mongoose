@@ -1,39 +1,56 @@
 import { z } from 'zod';
+import { BloodGroup, Gender } from './admin.const';
 
-const adminNameValidationSchema = z.object({
-  firstName: z
-    .string()
-    .trim()
-    .max(20, { message: 'First name cannot be more than 20 characters' }),
-  middleName: z.string().trim().optional(),
-  lastName: z.string().trim().min(1, { message: 'Last name is required' }),
+const createUserNameValidationSchema = z.object({
+  firstName: z.string().min(1).max(20),
+  middleName: z.string().max(20),
+  lastName: z.string().max(20),
 });
 
-const createAdminValidationSchema = z.object({
+export const createAdminValidationSchema = z.object({
   body: z.object({
     password: z.string().max(20),
     admin: z.object({
       designation: z.string(),
-      name: adminNameValidationSchema,
-      gender: z.enum(['male', 'female', 'others']),
+      name: createUserNameValidationSchema,
+      gender: z.enum([...Gender] as [string, ...string[]]),
       dateOfBirth: z.string().optional(),
-      contactNo: z.string().min(1, { message: 'Contact number is required' }),
-      emergencyContactNo: z
-        .string()
-        .min(1, { message: 'Emergency contact number is required' }),
-      email: z.string().email({ message: 'Invalid email address' }),
-      presentAddress: z
-        .string()
-        .min(1, { message: 'Present address is required' }),
-      permanentAddress: z
-        .string()
-        .min(1, { message: 'Permanent address is required' }),
-      profileImage: z.string().url().optional(),
-      managementDepartment: z.string(),
+      email: z.string().email(),
+      contactNo: z.string(),
+      emergencyContactNo: z.string(),
+      bloodGroup: z.enum([...BloodGroup] as [string, ...string[]]),
+      presentAddress: z.string(),
+      permanentAddress: z.string(),
+      profileImg: z.string(),
     }),
   }),
 });
 
-export const adminValidations = {
+const updateUserNameValidationSchema = z.object({
+  firstName: z.string().min(3).max(20).optional(),
+  middleName: z.string().min(3).max(20).optional(),
+  lastName: z.string().min(3).max(20).optional(),
+});
+
+export const updateAdminValidationSchema = z.object({
+  body: z.object({
+    admin: z.object({
+      name: updateUserNameValidationSchema,
+      designation: z.string().max(30).optional(),
+      gender: z.enum([...Gender] as [string, ...string[]]).optional(),
+      dateOfBirth: z.string().optional(),
+      email: z.string().email().optional(),
+      contactNo: z.string().optional(),
+      emergencyContactNo: z.string().optional(),
+      bloodGroup: z.enum([...BloodGroup] as [string, ...string[]]).optional(),
+      presentAddress: z.string().optional(),
+      permanentAddress: z.string().optional(),
+      profileImg: z.string().optional(),
+    }),
+  }),
+});
+
+export const AdminValidations = {
   createAdminValidationSchema,
+  updateAdminValidationSchema,
 };

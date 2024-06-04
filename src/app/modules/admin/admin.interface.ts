@@ -6,20 +6,30 @@ export type TAdminName = {
   lastName: string;
 };
 
+export type TAdminGender = 'male' | 'female' | 'other';
+export type TAdminBloodGroup =
+  | 'A+'
+  | 'A-'
+  | 'B+'
+  | 'B-'
+  | 'AB+'
+  | 'AB-'
+  | 'O+'
+  | 'O-';
+
 export type TAdmin = {
   id: string;
   user: Types.ObjectId;
-  role: string;
   designation: string;
   name: TAdminName;
-  gender: 'male' | 'female' | 'others';
-  dateOfBirth?: string;
+  gender: TAdminGender;
+  dateOfBirth?: Date;
   email: string;
   contactNo: string;
   emergencyContactNo: string;
+  bloodGroup?: TAdminBloodGroup;
   presentAddress: string;
   permanentAddress: string;
-  profileImage?: string;
-  managementDepartment: Types.ObjectId;
+  profileImg?: string;
   isDeleted: boolean;
 };

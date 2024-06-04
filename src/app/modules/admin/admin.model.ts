@@ -1,83 +1,86 @@
 import { Schema, model } from 'mongoose';
-import { TAdmin, TAdminName } from './admin.interface';
 
-const adminNameSchema = new Schema<TAdminName>({
+import { TAdmin, TAdminName } from './admin.interface';
+import { BloodGroup, Gender } from './admin.const';
+
+const userNameSchema = new Schema<TAdminName>({
   firstName: {
     type: String,
+    required: [true, 'First Name is required'],
     trim: true,
-    maxLength: [20, 'first name will not more than 20 char'],
-    required: [true, 'First name is required'],
+    maxlength: [20, 'Name can not be more than 20 characters'],
   },
   middleName: {
     type: String,
+    trim: true,
   },
   lastName: {
     type: String,
-    required: [true, 'First name is required'],
+    trim: true,
+    required: [true, 'Last Name is required'],
+    maxlength: [20, 'Name can not be more than 20 characters'],
   },
 });
 
-const adminSchema = new Schema<TAdmin>(
-  {
-    id: {
-      type: String,
-      required: true,
-      unique: true,
+const adminSchema = new Schema<TAdmin>({
+  id: {
+    type: String,
+    required: [true, 'ID is required'],
+    unique: true,
+  },
+  user: {
+    type: Schema.Types.ObjectId,
+    required: [true, 'User id is required'],
+    unique: true,
+    ref: 'User',
+  },
+  designation: {
+    type: String,
+    required: [true, 'Designation is required'],
+  },
+  name: {
+    type: userNameSchema,
+    required: [true, 'Name is required'],
+  },
+  gender: {
+    type: String,
+    enum: {
+      values: Gender,
+      message: '{VALUE} is not a valid gender',
     },
-    user: {
-      type: Schema.Types.ObjectId,
-      required: [true, 'id is required'],
-      unique: true,
-      ref: 'User',
-    },
-    role: {
-      type: String,
-      required: true,
-    },
-
-    designation: {
-      type: String,
-      required: true,
-    },
-
-    name: {
-      type: adminNameSchema,
-      required: true,
-    },
-    gender: {
-      type: String,
-      enum: {
-        values: ['male', 'female', 'others'],
-        message:
-          "{VALUE} is not valid you should use 'male' 'female' or 'others'",
-      },
-      required: true,
-    },
-    dateOfBirth: {
-      type: String,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    contactNo: { type: String, required: true },
-    emergencyContactNo: { type: String, required: true },
-    presentAddress: { type: String, required: true },
-    permanentAddress: { type: String, required: true },
-    profileImage: { type: String },
-    managementDepartment: {
-      type: Schema.Types.ObjectId,
-      ref: 'AcademicDepartment',
-    },
-    isDeleted: {
-      type: Boolean,
-      default: false,
+    required: [true, 'Gender is required'],
+  },
+  dateOfBirth: { type: Date },
+  email: {
+    type: String,
+    required: [true, 'Email is required'],
+    unique: true,
+  },
+  contactNo: { type: String, required: [true, 'Contact number is required'] },
+  emergencyContactNo: {
+    type: String,
+    required: [true, 'Emergency contact number is required'],
+  },
+  bloodGroup: {
+    type: String,
+    enum: {
+      values: BloodGroup,
+      message: '{VALUE} is not a valid blood group',
     },
   },
-  {
-    timestamps: true,
+  presentAddress: {
+    type: String,
+    required: [true, 'Present address is required'],
   },
-);
+  permanentAddress: {
+    type: String,
+    required: [true, 'Permanent address is required'],
+  },
+  profileImg: { type: String },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 export const Admin = model<TAdmin>('Admin', adminSchema);
