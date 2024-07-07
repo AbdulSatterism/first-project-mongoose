@@ -2,10 +2,11 @@ import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import { User } from '../users/user.model';
 import { TLoginUser } from './auth.interface';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import { JwtPayload } from 'jsonwebtoken';
 import config from '../../config';
 import bcrypt from 'bcrypt';
-import { createToken } from './auth.utils';
+import { createToken, verifyToken } from './auth.utils';
+import { sendEmail } from '../../utils/sendEmail';
 
 const loginUser = async (payload: TLoginUser) => {
   const { id, password } = payload;
@@ -111,10 +112,11 @@ const changePassword = async (
 const refreshToken = async (token: string) => {
   //check token valid or not
 
-  const decoded = jwt.verify(
-    token,
-    config.jwt_refresh_token as string,
-  ) as JwtPayload;
+  const decoded = verifyToken(token, config.jwt_refresh_token as string);
+  // const decoded = jwt.verify(
+  //   token,
+  //   config.jwt_refresh_token as string,
+  // ) as JwtPayload;
   // check role
   const { userId, iat } = decoded;
 
@@ -188,8 +190,56 @@ const forgetPassword = async (userId: string) => {
     '10m',
   );
 
-  const resetUILink = `http://localhost:3000?id=${user.id}&token=${resetToken}`;
-  console.log(resetUILink);
+  const resetUILink = `${config.reset_pass_ui_link}?id=${user.id}&token=${resetToken}`;
+
+  sendEmail(user.email, resetUILink);
+};
+
+const resetPassword = async (
+  payload: { id: string; newPassword: string },
+  token: string,
+) => {
+  const user = await User.isUserExistByCustomId(payload?.id);
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'user not found');
+  }
+
+  //   // is user deleted
+  if (user?.isDeleted) {
+    throw new AppError(httpStatus.FORBIDDEN, 'user is deleted');
+  }
+  //   // is user blocked
+  const userStatus = user?.status;
+  if (userStatus === 'blocked') {
+    throw new AppError(httpStatus.FORBIDDEN, 'user is blocked');
+  }
+
+  // const decoded = jwt.verify(
+  //   token,
+  //   config.jwt_access_token as string,
+  // ) as JwtPayload;
+  const decoded = verifyToken(token, config.jwt_access_token as string);
+
+  if (payload.id !== decoded.userId) {
+    throw new AppError(httpStatus.FORBIDDEN, ' forbidden request');
+  }
+
+  // hash new password
+  const newHashPassword = await bcrypt.hash(
+    payload.newPassword,
+    Number(config.bcrypt_salt_round),
+  );
+
+  await User.findOneAndUpdate(
+    {
+      id: decoded?.userId,
+    },
+    {
+      password: newHashPassword,
+      needsPasswordChange: false,
+      passwordChangeAt: new Date(),
+    },
+  );
 };
 
 export const AuthServices = {
@@ -197,4 +247,5 @@ export const AuthServices = {
   changePassword,
   refreshToken,
   forgetPassword,
+  resetPassword,
 };
