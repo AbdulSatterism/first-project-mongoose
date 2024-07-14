@@ -76,7 +76,7 @@ const adminSchema = new Schema<TAdmin>({
     type: String,
     required: [true, 'Permanent address is required'],
   },
-  profileImg: { type: String },
+  profileImage: { type: String },
   isDeleted: {
     type: Boolean,
     default: false,

@@ -30,6 +30,6 @@ export type TAdmin = {
   bloodGroup?: TAdminBloodGroup;
   presentAddress: string;
   permanentAddress: string;
-  profileImg?: string;
+  profileImage?: string;
   isDeleted: boolean;
 };
