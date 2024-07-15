@@ -1,3 +1,3 @@
 export const UserStatus = ['in-progress', 'blocked'];
 
-export const UserRole = ['admin', 'student', 'faculty'] as const;
+export const UserRole = ['superAdmin', 'admin', 'student', 'faculty'] as const;

@@ -17,4 +17,5 @@ export default {
   cloudinary_image_cloud_name: process.env.CLOUDINARY_IMAGE_CLOUD_NAME,
   cloudinary_image_api_key: process.env.CLOUDINARY_IMAGE_API_KEY,
   cloudinary_image_api_secret: process.env.CLOUDINARY_IMAGE_API_SECRET,
+  super_admin_pass: process.env.SUPER_ADMIN_PASS,
 };

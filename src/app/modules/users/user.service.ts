@@ -51,7 +51,7 @@ const createStudentIntoDB = async (
   if (!academicDepartment) {
     throw new AppError(400, 'Aademic department not found');
   }
-
+  payload.academicFaculty = academicDepartment.academicFaculty;
   // create session
   const session = await mongoose.startSession();
 
@@ -68,14 +68,19 @@ const createStudentIntoDB = async (
       throw new AppError(httpStatus.BAD_REQUEST, 'failed to create user');
     }
 
-    const imageName = `${userData?.id}`;
-    const path = file?.path;
-    const profileImg = await sendImageToCloudinary(imageName, path);
+    if (file) {
+      const imageName = `${userData?.id}`;
+      const path = file?.path;
+      //send image to cloudinary
+      const profileImg = await sendImageToCloudinary(imageName, path);
+
+      payload.profileImage = profileImg?.secure_url;
+    }
 
     //set id, and user id,and profile image
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id; //reference id
-    payload.profileImage = profileImg?.secure_url;
+
     //create a user transection-2
     const newStudent = await Student.create([payload], { session });
     if (!newStudent.length) {
@@ -114,6 +119,8 @@ const createFacultyIntoDB = async (
     throw new AppError(400, 'Academic department not found');
   }
 
+  payload.academicFaculty = academicDepartment?.academicFaculty;
+
   // create session
   const session = await mongoose.startSession();
   try {
@@ -129,13 +136,15 @@ const createFacultyIntoDB = async (
       );
     }
 
-    const imageName = `${userData?.id}`;
-    const path = file?.path;
-    const profileImg = await sendImageToCloudinary(imageName, path);
+    if (file) {
+      const imageName = `${userData?.id}`;
+      const path = file?.path;
+      const profileImg = await sendImageToCloudinary(imageName, path);
+      payload.profileImage = profileImg?.secure_url;
+    }
 
     payload.id = facultyUser[0].id;
     payload.user = facultyUser[0]._id;
-    payload.profileImage = profileImg?.secure_url;
 
     const newFaculty = await Faculty.create([payload], { session });
     if (!newFaculty) {
@@ -175,13 +184,15 @@ const createAdminIntoDB = async (
       throw new AppError(httpStatus.BAD_REQUEST, 'faild to user create');
     }
 
-    const imageName = `${userData?.id}`;
-    const path = file?.path;
-    const profileImg = await sendImageToCloudinary(imageName, path);
+    if (file) {
+      const imageName = `${userData?.id}`;
+      const path = file?.path;
+      const profileImg = await sendImageToCloudinary(imageName, path);
+      payload.profileImage = profileImg?.secure_url;
+    }
 
     payload.id = adminUser[0].id;
     payload.user = adminUser[0]._id;
-    payload.profileImage = profileImg?.secure_url;
 
     const newAdmin = await Admin.create([payload], { session });
     if (!newAdmin?.length) {
